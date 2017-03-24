@@ -60,12 +60,16 @@ public class Main {
         return filename + " : " + df.format(accuracy) + "%";
     }
 
-    private static Catalog createCatalog(File indexableDirectory) throws NoDocumentsFoundException {
+    private static Catalog createCatalog(File indexableDirectory) throws Exception {
         ArrayList<Document> docs = new ArrayList<>();
 
-        File[] directoryListing = indexableDirectory.listFiles(new DocumentNameFilter());
+        if (indexableDirectory == null) {
+            throw new Exception();
+        }
 
-        if (directoryListing != null && directoryListing.length > 0) {
+        List<File> directoryListing = getAllTextFiles(indexableDirectory);
+
+        if (directoryListing.size() > 0) {
             for (File child : directoryListing) {
                 Document doc = new Document(child.getAbsolutePath());
                 docs.add(doc);
@@ -79,4 +83,21 @@ public class Main {
 
         return catalog;
     }
+
+    private static List<File> getAllTextFiles(File file) {
+
+        List<File> results = new ArrayList<>();
+
+        File[] files = file.listFiles();
+
+        for (File subFile : files) {
+            if (!subFile.isDirectory() && subFile.getName().endsWith(".txt")) {
+                results.add(subFile);
+            } else {
+                results.addAll(getAllTextFiles(subFile));
+            }
+        }
+        return results;
+    }
+
 }

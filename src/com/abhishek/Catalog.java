@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Catalog {
 
-    private ArrayList<Document> documents = new ArrayList<>();
+    private List<Document> documents = new ArrayList<>();
 
     // HashMap: word -> document -> frequency
     private HashMap<String, HashMap<Document, Integer>> word2Doc2Freq = new HashMap<>();
@@ -36,10 +36,15 @@ public class Catalog {
     public List<Result> search(String query) {
 
         String[] queryWords = query.split(DOC_REGEX);
-        Set<String> queries = removeDuplicates(queryWords);
+        Set<String> sanitizedQueries = new HashSet<>();
+
+        for (String dirty : queryWords) {
+            sanitizedQueries.add(sanitize(dirty));
+        }
+
         HashMap<Document, Result> doc2result = new HashMap<>();
 
-        for (String term : queries) {
+        for (String term : sanitizedQueries) {
             if (word2Doc2Freq.containsKey(term)) {
                 assignScoresForTerm(doc2result, term);
             }
